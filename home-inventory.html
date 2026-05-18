@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Home Inventory</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F2ED;
+    --surface: #FFFDF9;
+    --surface2: #F0EDE6;
+    --ink: #1A1714;
+    --ink2: #6B6560;
+    --ink3: #A8A29C;
+    --accent: #C4581A;
+    --accent-soft: #F4E8DF;
+    --green: #2D6A4F;
+    --green-soft: #D8EDDF;
+    --amber: #B5690A;
+    --amber-soft: #FEF3C7;
+    --red: #9B1C1C;
+    --red-soft: #FDE8E8;
+    --border: rgba(26,23,20,0.1);
+    --border2: rgba(26,23,20,0.18);
+    --radius: 12px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 12px rgba(26,23,20,0.06);
+    --shadow-lg: 0 8px 40px rgba(26,23,20,0.12);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .logo-word {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+
+  .logo-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid var(--border2);
+    padding: 2px 7px;
+    border-radius: 999px;
+  }
+
+  .header-actions { display: flex; gap: 8px; }
+
+  /* MAIN */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 2rem 1.5rem 4rem;
+    flex: 1;
+  }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .stat-card.highlight::before { opacity: 1; background: var(--red); }
+
+  .stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink3);
+    pointer-events: none;
+  }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input { padding-left: 36px; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(196,88,26,0.1);
+  }
+
+  select { cursor: pointer; background-image: none; }
+
+  /* BUTTONS */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    padding: 9px 18px;
+    border: none;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-primary:hover { background: #A8481A; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-ghost {
+    background: var(--surface);
+    color: var(--ink2);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-ghost:hover { background: var(--surface2); }
+
+  .btn-danger-ghost {
+    background: none;
+    color: var(--ink3);
+    border: none;
+    padding: 6px 8px;
+  }
+
+  .btn-danger-ghost:hover { color: var(--red); background: var(--red-soft); border-radius: var(--radius-sm); }
+
+  /* ITEMS */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .items-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .item-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .item-row:hover { border-color: var(--border2); box-shadow: var(--shadow); }
+
+  .room-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .item-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .pill {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .pill-room { background: var(--surface2); color: var(--ink2); }
+  .pill-good { background: var(--green-soft); color: var(--green); }
+  .pill-fair { background: var(--amber-soft); color: var(--amber); }
+  .pill-poor { background: var(--red-soft); color: var(--red); }
+
+  .item-notes-text {
+    font-size: 13px;
+    color: var(--ink3);
+    font-style: italic;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 260px;
+  }
+
+  .item-col { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+
+  .row-actions { display: flex; gap: 2px; }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--ink3);
+  }
+
+  .empty-icon {
+    font-family: 'DM Serif Display', serif;
+    font-size: 64px;
+    line-height: 1;
+    margin-bottom: 1rem;
+    display: block;
+    opacity: 0.2;
+  }
+
+  .empty h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink2);
+    margin-bottom: 8px;
+  }
+
+  .empty p { font-size: 14px; }
+
+  /* MODAL */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,23,20,0.4);
+    z-index: 200;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 1rem 2rem;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 2rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ink);
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink3);
+    font-size: 20px;
+    padding: 2px;
+    line-height: 1;
+  }
+
+  .close-btn:hover { color: var(--ink); }
+
+  .form-group { margin-bottom: 1rem; }
+  .form-label { font-size: 13px; font-weight: 500; color: var(--ink2); margin-bottom: 5px; display: block; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.25rem; }
+
+  /* ROOM COLOR MAP */
+  .dot-0 { background: #C4581A; }
+  .dot-1 { background: #2D6A4F; }
+  .dot-2 { background: #1D4ED8; }
+  .dot-3 { background: #7C3AED; }
+  .dot-4 { background: #B45309; }
+  .dot-5 { background: #0F766E; }
+  .dot-6 { background: #9D174D; }
+  .dot-7 { background: #1E40AF; }
+  .dot-8 { background: #3F6212; }
+  .dot-9 { background: #6B21A8; }
+
+  @media (max-width: 600px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    header { padding: 0 1rem; }
+    .item-notes-text { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-word">Homelog</span>
+    <span class="logo-tag">Inventory</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="exportCSV()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="btn btn-primary" onclick="openModal()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add item
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-label">Total items</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-rooms">0</div>
+      <div class="stat-label">Rooms</div>
+    </div>
+    <div class="stat-card" id="stat-attn-card">
+      <div class="stat-num" id="stat-attn">0</div>
+      <div class="stat-label">Need attention</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="search" placeholder="Search items…" oninput="render()" />
+    </div>
+    <select id="filter-room" onchange="render()"><option value="">All rooms</option></select>
+    <select id="filter-cond" onchange="render()">
+      <option value="">All conditions</option>
+      <option>Good</option><option>Fair</option><option>Poor</option>
+    </select>
+  </div>
+
+  <div class="section-label" id="count-label"></div>
+  <div class="items-list" id="items-list"></div>
+</main>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add item</div>
+      <button class="close-btn" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-name">Item name *</label>
+      <input type="text" id="f-name" placeholder="e.g. Coffee table, Washing machine…" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="f-room">Room *</label>
+        <select id="f-room">
+          <option value="">— select —</option>
+          <option>Living room</option><option>Bedroom</option><option>Kitchen</option>
+          <option>Bathroom</option><option>Garage</option><option>Office</option>
+          <option>Dining room</option><option>Laundry</option><option>Basement</option>
+          <option>Attic</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="f-cond">Condition</label>
+        <select id="f-cond">
+          <option value="">— select —</option>
+          <option>Good</option><option>Fair</option><option>Poor</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="f-notes">Notes</label>
+      <textarea id="f-notes" rows="3" placeholder="Brand, serial number, purchase info, repairs needed…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveItem()">Save item</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROOMS = ["Living room","Bedroom","Kitchen","Bathroom","Garage","Office","Dining room","Laundry","Basement","Attic","Other"];
+
+let items = JSON.parse(localStorage.getItem('homelog_items') || '[]');
+let editId = null;
+let roomColorMap = {};
+
+function getRoomColor(room) {
+  if (!roomColorMap[room]) {
+    const idx = Object.keys(roomColorMap).length % 10;
+    roomColorMap[room] = idx;
+  }
+  return roomColorMap[room];
+}
+
+function condPill(c) {
+  if (!c) return '';
+  const cls = c === 'Good' ? 'pill-good' : c === 'Fair' ? 'pill-fair' : 'pill-poor';
+  return `<span class="pill ${cls}">${c}</span>`;
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const fr = document.getElementById('filter-room').value;
+  const fc = document.getElementById('filter-cond').value;
+
+  // rebuild room filter options
+  const rooms = [...new Set(items.map(i=>i.room).filter(Boolean))].sort();
+  const sel = document.getElementById('filter-room');
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">All rooms</option>' + rooms.map(r=>`<option value="${r}">${r}</option>`).join('');
+  if (rooms.includes(prev)) sel.value = prev;
+
+  // assign colors
+  rooms.forEach(r => getRoomColor(r));
+
+  const filtered = items.filter(it => {
+    if (q && !it.name.toLowerCase().includes(q) && !(it.notes||'').toLowerCase().includes(q)) return false;
+    if (fr && it.room !== fr) return false;
+    if (fc && it.condition !== fc) return false;
+    return true;
+  });
+
+  // stats
+  const attn = items.filter(i => i.condition === 'Fair' || i.condition === 'Poor').length;
+  document.getElementById('stat-total').textContent = items.length;
+  document.getElementById('stat-rooms').textContent = rooms.length;
+  document.getElementById('stat-attn').textContent = attn;
+  document.getElementById('stat-attn-card').className = 'stat-card' + (attn > 0 ? ' highlight' : '');
+  document.getElementById('count-label').textContent = filtered.length + ' item' + (filtered.length !== 1 ? 's' : '');
+
+  const list = document.getElementById('items-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty"><span class="empty-icon">⌂</span><h3>${items.length === 0 ? 'Nothing here yet' : 'No results'}</h3><p>${items.length === 0 ? 'Add your first item to get started.' : 'Try adjusting your search or filters.'}</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(it => {
+    const ci = getRoomColor(it.room);
+    return `
+    <div class="item-row">
+      <div class="room-dot dot-${ci}" title="${esc(it.room)}"></div>
+      <div class="item-col">
+        <div class="item-name">${esc(it.name)}</div>
+        ${it.notes ? `<div class="item-notes-text">${esc(it.notes)}</div>` : ''}
+      </div>
+      <div class="item-right">
+        <span class="pill pill-room">${esc(it.room)}</span>
+        ${condPill(it.condition)}
+        <div class="row-actions">
+          <button class="btn-danger-ghost" onclick="editItem('${it.id}')" title="Edit" style="padding:5px 7px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn-danger-ghost" onclick="deleteItem('${it.id}')" title="Delete">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(id) {
+  editId = id || null;
+  const it = id ? items.find(i=>i.id===id) : null;
+  document.getElementById('modal-title').textContent = it ? 'Edit item' : 'Add item';
+  document.getElementById('f-name').value = it?.name || '';
+  document.getElementById('f-room').value = it?.room || '';
+  document.getElementById('f-cond').value = it?.condition || '';
+  document.getElementById('f-notes').value = it?.notes || '';
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 50);
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('overlay')) closeModal();
+}
+
+function saveItem() {
+  const name = document.getElementById('f-name').value.trim();
+  const room = document.getElementById('f-room').value;
+  if (!name || !room) {
+    if (!name) document.getElementById('f-name').focus();
+    else document.getElementById('f-room').focus();
+    return;
+  }
+  const item = {
+    id: editId || Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+    name,
+    room,
+    condition: document.getElementById('f-cond').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    updated: new Date().toISOString()
+  };
+  if (editId) items = items.map(i=>i.id===editId ? item : i);
+  else items.push(item);
+  localStorage.setItem('homelog_items', JSON.stringify(items));
+  closeModal();
+  render();
+}
+
+function editItem(id) { openModal(id); }
+
+function deleteItem(id) {
+  if (!confirm('Remove this item?')) return;
+  items = items.filter(i=>i.id!==id);
+  localStorage.setItem('homelog_items', JSON.stringify(items));
+  render();
+}
+
+function exportCSV() {
+  if (!items.length) { alert('No items to export.'); return; }
+  const rows = [['Name','Room','Condition','Notes','Last updated']];
+  items.forEach(it => rows.push([it.name, it.room, it.condition||'', it.notes||'', it.updated||'']));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'home-inventory.csv';
+  a.click();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+render();
+</script>
+</body>
+</html>
